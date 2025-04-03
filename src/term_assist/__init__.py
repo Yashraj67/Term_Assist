@@ -1,5 +1,9 @@
-#!/usr/bin/env python
+import os
 import sys
+
+sys.path.append("/home/yashraj/term_assist/term_assist/src/")
+
+from term_assist.command_analyzer import sanitize_command
 
 
 def get_command_details():
@@ -10,12 +14,11 @@ def get_command_details():
       sys.argv[3..] -> any stderr text (could include spaces/newlines)
     """
     if len(sys.argv) < 3:
-        return  # Not enough args, ignore
+        return None, None, None
 
     command = sys.argv[1]
     exit_code = sys.argv[2]
 
-    # The remaining args represent the stderr text.
     error_text = " ".join(sys.argv[3:])
 
     print("----- COMMAND LOG (Zsh) -----")
@@ -26,11 +29,13 @@ def get_command_details():
         print(error_text)
     print("--------------------------------")
 
-    return command, exit_code , error_text
+    return command, exit_code, error_text
 
 
 def main():
-
+    command, exit_code, error_text = get_command_details()
+    clean_command = sanitize_command(command)
+    print(f"clean command : {clean_command}")
 
 
 if __name__ == "__main__":
