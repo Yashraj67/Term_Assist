@@ -31,3 +31,11 @@ export OPENAI_API_KEY="your_openai_api_key"
 ```
 
 - Run any command and your terminal assistant is ready to resolve all your errors!
+
+## Sample Responses
+
+- File based errors :
+  ![Prototype 1](https://github.com/Yashraj67/Term_Assist/blob/main/Screenshot%202025-04-12%20231304.png)
+
+- General command errors :
+  ![Prototype 2](https://github.com/Yashraj67/Term_Assist/blob/main/Screenshot%202025-04-12%20231430.png)
