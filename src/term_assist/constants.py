@@ -1,3 +1,5 @@
+import os
+
 LINE_REGEX_PATTERNS = [
     r"line (\d+)",  # Common Python traceback: 'File "x.py", line 10'
     r":(\d+):",  # Common in Ruby: 'x.rb:10:in `<main>`'
@@ -40,3 +42,11 @@ FILE_EXTENTIONS = [
     ".nim",
     ".hx",
 ]
+
+OPENAI_API_KEY = os.environ.get(
+    "OPENAI_API_KEY",
+    "Your_openai_api_key",
+)
+
+GPT4O = "gpt-4o"
+GPT4O_MINI = "gpt-4o-mini"
