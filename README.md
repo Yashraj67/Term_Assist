@@ -2,6 +2,9 @@
 
 Term-Assist is AI-powered terminal tool which uses llms to provide solutions to your terminal errors and queries.
 
+Currently have support for all general commands and `python` files.
+Will be adding support for other terminals and languages soon!
+
 ### Steps to get started
 
 ---
@@ -20,3 +23,11 @@ poetry shell
 ```sh
 source ~/.zshrc
 ```
+
+- Add the following environment variables :
+
+```sh
+export OPENAI_API_KEY="your_openai_api_key"
+```
+
+- Run any command and your terminal assistant is ready to resolve all your errors!

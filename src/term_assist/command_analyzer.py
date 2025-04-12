@@ -3,7 +3,7 @@ import re
 import shlex
 import sys
 
-sys.path.append("/home/yashraj/term_assist/term_assist/src/term_assist")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from term_assist.constants import FILE_EXTENTIONS
 
