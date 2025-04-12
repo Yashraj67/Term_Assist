@@ -1,6 +1,11 @@
+import os
 import re
 import shlex
 import sys
+
+sys.path.append("/home/yashraj/term_assist/term_assist/src/term_assist")
+
+from term_assist.constants import FILE_EXTENTIONS
 
 
 def remove_env_assignments(command: str) -> str:
@@ -59,5 +64,15 @@ def sanitize_command(command: str) -> str:
         r"(\$[A-Z0-9_]*(?:SECRET|PASSWORD|TOKEN)[A-Z0-9_]*)", re.IGNORECASE
     )
     command = env_pattern.sub("****", command)
-
     return command
+
+
+def get_command_type(command: str, command_path):
+    tokens = shlex.split(command)
+    for token in tokens:
+        if token.endswith(tuple(FILE_EXTENTIONS)):
+            absolute_path = command_path + "/" + token
+            _, extension = os.path.splitext(token)
+            return absolute_path, extension
+
+    return None, None
