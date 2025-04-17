@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 from term_assist.response_enhancer import pretty_print_llm
 from term_assist.spinner import Spinner
@@ -13,7 +12,6 @@ from term_assist.llm import GPT4, get_openai_client, get_response_from_llm_with_
 from term_assist.prompts import get_comman_error_prompt, get_file_error_prompt
 
 openai_client = get_openai_client()
-done = True
 
 
 def get_command_details():
@@ -32,22 +30,21 @@ def get_command_details():
     command_path = sys.argv[3]
 
     error_text = " ".join(sys.argv[4:])
-    print(error_text)
     return command, exit_code, error_text, command_path
 
 
 def main():
     command, exit_code, error_text, command_path = get_command_details()
     if exit_code != "0":
-        clean_command = sanitize_command(command)
-        file_path, extention = get_command_type(clean_command, command_path)
-        if extention != None:
-            context = get_file_context(error_text, file_path, extention)
-            prompt = get_file_error_prompt(command, exit_code, error_text, context)
-        else:
-            prompt = get_comman_error_prompt(command, exit_code, error_text)
-
         with Spinner("🔎  Asking LLM for fix... "):
+            clean_command = sanitize_command(command)
+            file_path, extention = get_command_type(clean_command, command_path)
+            if extention != None:
+                context = get_file_context(error_text, file_path, extention)
+                prompt = get_file_error_prompt(command, exit_code, error_text, context)
+            else:
+                prompt = get_comman_error_prompt(command, exit_code, error_text)
+
             response = get_response_from_llm_with_fallback(GPT4, prompt, openai_client)
 
         pretty_print_llm(response)

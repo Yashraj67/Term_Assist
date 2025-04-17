@@ -21,8 +21,7 @@ def remove_env_assignments(command: str) -> str:
     for token in tokens:
         if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=.*", token):
             continue
-        else:
-            filtered_tokens.append(token)
+        filtered_tokens.append(token)
 
     return " ".join(shlex.quote(t) for t in filtered_tokens)
 

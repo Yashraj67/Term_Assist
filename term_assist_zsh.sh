@@ -1,47 +1,55 @@
 # ~~~~~~~~~~~~~~~ BEGIN TERM ASSIST ZSHRC SNIPPET ~~~~~~~~~~~~~~~
 
-function skip_trailing_sts() {
-  if [[ "$LBUFFER" =~ '[[:space:]]--sts'$ ]]; then
-    LBUFFER="${LBUFFER% --sts}"
-    export SKIP_LOGGING=1
+skip_trailing_sts() {
+  if [[ $LBUFFER == *' --sts' ]]; then
+      LBUFFER=${LBUFFER% --sts}
+      SKIP_LOGGING=1
   else
-    unset SKIP_LOGGING
+      unset SKIP_LOGGING
   fi
 }
-
 zle -N zle-line-finish skip_trailing_sts
 
-function preexec() {
-    export LOGGED_CMD="$1"
-    export CMD_START_DIR=$PWD
-    exec 2> "/tmp/cmd_stderr.$$"
+preexec_logger() {
+    LOGGED_CMD=$1
+    CMD_START_DIR=$PWD
+
+    if [[ -z $SKIP_LOGGING ]]; then
+        exec {ORIG_STDERR}>&2
+        exec 2> >(tee "/tmp/cmd_stderr.$$" >&$ORIG_STDERR)
+    fi
 }
+add-zsh-hook preexec  preexec_logger
 
 poetry_term_assist() {
     # Update this with cloned project's root path
     poetry --directory /home/yashraj/term_assist/term_assist "$@"
 }
 
-function precmd() {
+precmd_logger() {
     local exit_code=$?
 
-    exec 2>&1
-
-    local error_output=""
-    if [[ -f "/tmp/cmd_stderr.$$" ]]; then
-        error_output="$(cat /tmp/cmd_stderr.$$)"
-        rm -f "/tmp/cmd_stderr.$$" 2>/dev/null
+    if [[ -z $SKIP_LOGGING && -n ${ORIG_STDERR:-} ]]; then
+        exec 2>&$ORIG_STDERR {ORIG_STDERR}>&-
     fi
 
-    if [[ -n "$SKIP_LOGGING" ]]; then
-        :
-    else
-        # Update this with cloned project's "__init__.py" file path in your machine
-        poetry_term_assist run python3  /home/yashraj/term_assist/term_assist/src/term_assist/__init__.py  \
-            "$LOGGED_CMD" "$exit_code" "$CMD_START_DIR" "$error_output"
+    if [[ -z $SKIP_LOGGING ]]; then
+        local error_output=""
+        [[ -f "/tmp/cmd_stderr.$$" ]] && {
+            error_output=$(< /tmp/cmd_stderr.$$)
+            rm -f "/tmp/cmd_stderr.$$"
+        }
+
+         # Update this with cloned project's "__init__.py" file path in your machine
+        if (( exit_code != 0 )) && [[ -n $error_output ]]; then
+            poetry_term_assist run python3 \
+              /home/yashraj/term_assist/term_assist/src/term_assist/__init__.py \
+              "$LOGGED_CMD" "$exit_code" "$CMD_START_DIR" "$error_output"
+        fi
     fi
 
-    unset CMD_START_DIR
-    unset LOGGED_CMD
-    unset SKIP_LOGGING
+    unset LOGGED_CMD CMD_START_DIR SKIP_LOGGING ORIG_STDERR
 }
+add-zsh-hook precmd  precmd_logger
+
+# ~~~~~~~~~~~~~~~ END TERM ASSIST ZSHRC SNIPPET ~~~~~~~~~~~~~~~
